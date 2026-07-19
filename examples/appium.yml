@@ -1,0 +1,44 @@
+name: Appium UI evidence
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # Use macos-latest for XCUITest and change platform to ios.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Start Appium, prepare a device, and configure your client/reporters to
+      # write screenshots, recordings, reports, and logs under appium-results/.
+      - name: Run Appium tests
+        run: npm run test:appium
+        env:
+          UI_EVIDENCE_DIR: ${{ github.workspace }}/appium-results
+
+      - name: Upload UI evidence
+        if: always()
+        uses: mtzack-org/upload-ui-evidence@v1
+        with:
+          portal-url: ${{ vars.UI_EVIDENCE_PORTAL_URL }}
+          token: ${{ secrets.UI_EVIDENCE_INGEST_TOKEN }}
+          platform: android
+          status: ${{ job.status }}
+          screenshots: appium-results/**/*.{png,jpg,jpeg}
+          videos: appium-results/**/*.{mp4,webm}
+          reports: appium-results/**/*.{html,zip}
+          logs: appium-results/**/*.{log,json,txt}
+          if-no-files-found: warn

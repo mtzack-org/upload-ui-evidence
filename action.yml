@@ -1,5 +1,5 @@
 name: Upload UI Evidence
-description: Upload screenshots, videos, reports, traces, and logs to a UI Evidence Portal.
+description: Upload Playwright, Maestro, and Appium evidence to a private UI Evidence Portal.
 author: mtzack-org
 
 branding:

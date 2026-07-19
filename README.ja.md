@@ -6,14 +6,14 @@
 
 [English](README.md)
 
-UIテストが落ちるたびにCIのArtifactsを掘る作業をなくします。Playwrightのスクリーンショット、動画、
-HTMLレポート、Trace、ログを非公開の
+UIテストが落ちるたびにCIのArtifactsを掘る作業をなくします。Playwright、Maestro、Appiumの
+スクリーンショット、動画、HTMLレポート、Trace、ログを非公開の
 [UI Evidence Portal](https://github.com/mtzack-org/ui-evidence-portal)へアップロードし、
 GitHub ActionsのJob Summaryから該当runを直接開けます。
 
 ![UI Evidence Portalのテスト実行ダッシュボード](docs/assets/portal-overview.png)
 
-## Playwrightを60秒で導入
+## 60秒で導入
 
 ### 1. 非公開Portalをデプロイ
 
@@ -27,7 +27,7 @@ Vercel Private Blobストアを接続し、
 - Repository Variable `UI_EVIDENCE_PORTAL_URL`: デプロイしたPortalのオリジン
 - Repository Secret `UI_EVIDENCE_INGEST_TOKEN`: Portal側の`EVIDENCE_INGEST_TOKEN`と同じ値
 
-### 3. Playwright実行後に証跡をアップロード
+### 3. UIテスト実行後に証跡をアップロード
 
 ```yaml
 - name: Upload UI evidence
@@ -46,17 +46,26 @@ Vercel Private Blobストアを接続し、
     if-no-files-found: error
 ```
 
-[完全なPlaywright workflow](examples/playwright.yml)と
-[実行可能な公開デモ](https://github.com/mtzack-org/upload-ui-evidence-playwright-demo)も参照できます。
+## フレームワーク別の例
+
+| テストフレームワーク | 対象 | Workflow |
+| --- | --- | --- |
+| Playwright | Web、モバイルブラウザのエミュレーション | [Playwright](examples/playwright.yml) |
+| Maestro | Android・iOS、React Native・Flutter | [Maestro](examples/maestro.yml) |
+| Appium | Android・iOSのネイティブ、ハイブリッド、モバイルWeb | [Appium](examples/appium.yml) |
+
+[Playwrightの公開デモ](https://github.com/mtzack-org/upload-ui-evidence-playwright-demo)は
+E2Eで実行できます。Maestro例では既存のCI処理で端末起動とアプリのインストールを行ってください。
+Appium例ではrunnerやreporterの出力先を`appium-results/`へ設定します。
 
 ## アップロードできるもの
 
-| Input | Playwrightでの主な用途 |
+| Input | UIテストでの主な用途 |
 | --- | --- |
 | `screenshots` | 失敗時やAssertion時のスクリーンショット |
 | `videos` | `.webm`形式のテスト録画 |
 | `reports` | HTMLレポートまたはそのアーカイブ |
-| `traces` | Playwright Traceの`.zip`ファイル |
+| `traces` | Playwright TraceなどのTraceファイル |
 | `logs` | テキスト、JSON、アプリケーションログ |
 
 成果物の入力には、改行区切りのglobパターンを指定できます。

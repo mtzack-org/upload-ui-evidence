@@ -6,14 +6,14 @@
 
 [日本語](README.ja.md)
 
-Stop digging through CI artifacts after a UI test fails. Upload Playwright screenshots, videos,
-HTML reports, traces, and logs to your private
+Stop digging through CI artifacts after a UI test fails. Upload Playwright, Maestro, and Appium
+screenshots, videos, HTML reports, traces, and logs to your private
 [UI Evidence Portal](https://github.com/mtzack-org/ui-evidence-portal), then open the exact run from
 the GitHub Actions Job Summary.
 
 ![UI Evidence Portal test run dashboard](docs/assets/portal-overview.png)
 
-## Playwright quick start
+## Quick start
 
 ### 1. Deploy your private Portal
 
@@ -27,7 +27,7 @@ Connect a Vercel Private Blob store and complete the environment-variable setup 
 - Repository variable `UI_EVIDENCE_PORTAL_URL`: your deployed Portal origin
 - Repository secret `UI_EVIDENCE_INGEST_TOKEN`: the same value as the Portal's `EVIDENCE_INGEST_TOKEN`
 
-### 3. Upload evidence after Playwright runs
+### 3. Upload evidence after your UI tests run
 
 ```yaml
 - name: Upload UI evidence
@@ -46,17 +46,26 @@ Connect a Vercel Private Blob store and complete the environment-variable setup 
     if-no-files-found: error
 ```
 
-See the [complete Playwright workflow](examples/playwright.yml) or the
-[public runnable demo](https://github.com/mtzack-org/upload-ui-evidence-playwright-demo).
+## Framework examples
+
+| Test framework | Platforms | Workflow |
+| --- | --- | --- |
+| Playwright | Web and mobile browser emulation | [Playwright](examples/playwright.yml) |
+| Maestro | Android and iOS; also React Native and Flutter | [Maestro](examples/maestro.yml) |
+| Appium | Android and iOS native, hybrid, and mobile web | [Appium](examples/appium.yml) |
+
+The [Playwright public demo](https://github.com/mtzack-org/upload-ui-evidence-playwright-demo)
+runs end to end. The Maestro example expects your existing CI step to start a device and install the
+app. The Appium example expects your runner/reporters to write evidence under `appium-results/`.
 
 ## What gets uploaded
 
-| Input | Typical Playwright output |
+| Input | Typical UI test output |
 | --- | --- |
 | `screenshots` | Failure and assertion screenshots |
 | `videos` | `.webm` test recordings |
 | `reports` | HTML reports or report archives |
-| `traces` | Playwright trace `.zip` files |
+| `traces` | Playwright traces and other trace files |
 | `logs` | Text, JSON, and application logs |
 
 Artifact inputs accept newline-separated glob patterns:

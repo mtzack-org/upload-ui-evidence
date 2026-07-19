@@ -1,0 +1,46 @@
+name: Maestro UI evidence
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # Use macos-latest for an iOS Simulator and change platform to ios.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      # Start your emulator and install the app here. For example, this can call
+      # your existing Gradle, Fastlane, Expo, or Flutter CI setup.
+      - name: Prepare Android test target
+        run: ./scripts/prepare-maestro-android.sh
+
+      - name: Install Maestro
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+
+      - name: Run Maestro
+        run: |
+          "$HOME/.maestro/bin/maestro" test .maestro \
+            --format html-detailed \
+            --output "${{ github.workspace }}/maestro-results/report.html" \
+            --test-output-dir "${{ github.workspace }}/maestro-results/artifacts" \
+            --debug-output "${{ github.workspace }}/maestro-results/artifacts"
+
+      - name: Upload UI evidence
+        if: always()
+        uses: mtzack-org/upload-ui-evidence@v1
+        with:
+          portal-url: ${{ vars.UI_EVIDENCE_PORTAL_URL }}
+          token: ${{ secrets.UI_EVIDENCE_INGEST_TOKEN }}
+          platform: android
+          status: ${{ job.status }}
+          screenshots: maestro-results/**/*.png
+          videos: maestro-results/**/*.{mp4,webm}
+          reports: maestro-results/**/*.html
+          logs: maestro-results/**/*.{log,json,txt}
+          if-no-files-found: warn
